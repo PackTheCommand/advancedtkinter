@@ -1,0 +1,4 @@
+IMPORTANT:
+
+for testing this demos the demo schould be OUDSIDE of the advancedtkinter module,
+so that imports work prorly
