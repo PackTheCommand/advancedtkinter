@@ -2,11 +2,10 @@ import random
 import tkinter
 
 from tkinter import Canvas, Tk, Frame, Label, Scale, Button, Text, END
-from tkinter import ttk ,font as tkfont
+from tkinter import ttk, font as tkfont
 
 import math
 from tkinter.ttk import Separator
-
 
 from PIL import Image, ImageTk, ImageColor, ImageGrab, ImageDraw
 
@@ -20,86 +19,145 @@ fr.geometry('300x300')
 StatikImage = []
 
 """
-StatikImage=[]
+StatikImage = []
 
-def createLabel1(master, text, textAncor="center", bg=Collor.bg,fg=Collor.fg, font=None,fs=12) -> Label:
-    if font==None:
-        font=tkfont.Font(size=fs, family="Bahnschrift")
+
+def createLabel1(master, text, textAncor="center", bg=Collor.bg, fg=Collor.fg, font=None, fs=12) -> Label:
+    if font == None:
+        font = tkfont.Font(size=fs, family="Bahnschrift")
     return Label(master, text=text, font=font, anchor=textAncor, bg=bg, fg=fg)
 
+
 class Window(Tk):
-    def __init__(self,**kwargs):
+    def __init__(self, **kwargs):
         self.updateable = {}
-        Tk.__init__(self,**kwargs)
-        self.win=Frame(master=self,bg=Collor.bg)
-        self.win.place(x=0,y=0)
-        self.notifications=[]
+        Tk.__init__(self, **kwargs)
+        self.win = Frame(master=self, bg=Collor.bg)
+        self.win.place(x=0, y=0)
+        self.notifications = []
         self.defaultFont = tkfont.nametofont("TkDefaultFont")
         self.defaultFont.configure(family="Bahnschrift")
 
-        self.wm_attributes('-transparentcolor',Collor.transparency_color)
-        self.bind("<Configure>",self.__updateInerFrame)
+        self.wm_attributes('-transparentcolor', Collor.transparency_color)
+        self.bind("<Configure>", self.__updateInerFrame)
         self.__updateInerFrame()
-        style=ttk.Style()
+        style = ttk.Style()
 
         style.configure('TSeparator', foreground=Collor.fg)
 
-    def __updateInerFrame(self,n=None):
+    def __updateInerFrame(self, n=None):
         self.updateNotifications()
-        self.win.configure(width=self.winfo_width(),height=self.winfo_height(),border=0)
+        self.win.configure(width=self.winfo_width(), height=self.winfo_height(), border=0)
+
     def updateNotifications(self):
         for a in self.updateable.keys():
-
             self.updateable[a].updateWinXY()
-    def setBg(self,bg):
+
+    def setBg(self, bg):
         self.win.configure(bg=bg)
-def slightHightToNull(wiget,atEnd=None):
-    widthOriginal=wiget.winfo_width()
-    w=widthOriginal
+
+
+def slightHightToNull(wiget, atEnd=None):
+    widthOriginal = wiget.winfo_width()
+    w = widthOriginal
     wiget.pack_propagate(False)
+
     def tonull():
-        nonlocal w,widthOriginal
-        print(w-2*(widthOriginal+2-w))
-        w-=1*(widthOriginal+2-w)
-        if w<10:
-            w=0
+        nonlocal w, widthOriginal
+        print(w - 2 * (widthOriginal + 2 - w))
+        w -= 1 * (widthOriginal + 2 - w)
+        if w < 10:
+            w = 0
             wiget.configure(width=0)
             wiget.pack_propagate(True)
             atEnd()
             return
 
-
         wiget.configure(width=w)
 
-        wiget.after(30,lambda :tonull())
+        wiget.after(30, lambda: tonull())
+
     tonull()
 
-def slightHightToMaxPack(wiget,targetwith=0,at_end=None):
-    widthOriginal=targetwith
+
+def slightHightToMaxPack(wiget, targetwith=0, at_end=None):
+    widthOriginal = targetwith
     wiget.configure(width=0)
-    w=0
+    w = 0
     wiget.pack_propagate(False)
+
     def totarget():
-        nonlocal w,widthOriginal
-        w+=0.4*(targetwith-w)
-        if (w+targetwith//30>=targetwith):
+        nonlocal w, widthOriginal
+        w += 0.4 * (targetwith - w)
+        if (w + targetwith // 30 >= targetwith):
             wiget.configure(width=targetwith)
             wiget.pack_propagate(True)
             if at_end:
                 at_end()
             return
         wiget.configure(width=w)
-        wiget.after(30,lambda :totarget())
+        wiget.after(30, lambda: totarget())
+
     totarget()
 
+
+class swithchFrame(Frame):
+    def __init__(self,master=None, **kwwargs):
+        Frame.__init__(self, master=master, **kwwargs)
+        self.currantFrame = None
+        self.framestack = []
+        self.pointer = 0
+
+    def setFrame(self, frame, parms):
+        frame.pack(parms)
+
+    def navigateF(self)->None:
+        if self.pointer < len(self.framestack):
+            self.pointer += 1
+        else:
+            return
+        if self.currantFrame:
+            self.currantFrame.pack_forget()
+        self.currantFrame = self.framestack[self.pointer]
+        self.currantFrame.pack(fill="both", expand=True)
+
+    def navigateB(self)->None:
+        if self.pointer >= 0:
+            self.pointer -= 1
+        else:
+            return
+        if self.currantFrame:
+            self.currantFrame.pack_forget()
+        self.currantFrame = self.framestack[self.pointer]
+        self.currantFrame.pack(fill="both", expand=True)
+
+    def puschFrame(self, frame)->int:
+        """Add Frame to Framestack"""
+        self.framestack.append(frame)
+
+        self.currantFrame = frame
+        return len(self.framestack) - 1
+        # self.currantFrame.pack(fill="both", expand=True)
+
+    def show(self, index)->None:
+        """Set Visible Frame"""
+        self.pointer = index
+        print("c", self.currantFrame)
+        if self.currantFrame != None:
+            print("forgot", self.currantFrame)
+            self.currantFrame.pack_forget()
+        self.currantFrame = self.framestack[index]
+        self.currantFrame.pack(fill="both", expand=True)
+
+
 class floatingBadge2(Frame):
-    def __init__(self,title="Notification", width=60, height=None,y=0,tkimage=None, **kwargs):
+    def __init__(self, title="Notification", width=60, height=None, y=0, tkimage=None, **kwargs):
         Frame.__init__(self, bg=Collor.bg, width=width, height=height, **kwargs)
         """Note: Master Must determines position"""
         f = tkfont.Font(size=10, weight="bold")
         self.width = width
-        self.onClick=None
-        self.visible=False
+        self.onClick = None
+        self.visible = False
         self.height = height
         f2 = tkfont.Font(font="Calibri", size=4)
         fr = Frame(bg=Collor.bg, master=self)
@@ -109,20 +167,22 @@ class floatingBadge2(Frame):
         self.l.bind("<Button-1>", self.tronClick)
         self.l.pack()
 
+        self.y = y
 
-        self.y=y
     def hide(self):
-        self.visible=False
+        self.visible = False
         self.place_configure(y=-80)
-        slightHightToNull(self,self.place_forget)
-        #self.place_forget()
+        slightHightToNull(self, self.place_forget)
+        # self.place_forget()
 
         print(self.master.updateable.keys())
         self.master.notifications.remove(self)
         self.master.updateable.pop(self)
         self.master.updateNotifications()
-    def tronClick(self,u):
+
+    def tronClick(self, u):
         self.onClick()
+
     def show(self):
         try:
 
@@ -138,70 +198,67 @@ class floatingBadge2(Frame):
 
 
         except ImportError:  # Exception:
-            raise Exception("Notification Object can only be used in containers using the pack window manager")
+            raise Exception("Notification Object can only be used in containers using the place window manager")
 
     def updateWinXY(self, u=None):
         if not self.visible:
             return
+
         def pl():
             x = self.master.winfo_width() - self.winfo_width()
 
-            self.place(x=x,)
+            self.place(x=x, )
 
         self.after(100, pl)
-def createButtonStyle(master,colora,colorb,name):
-    st=ttk.Style(master)
+
+
+def createButtonStyle(master, colora, colorb, name):
+    st = ttk.Style(master)
     st.theme_use("clam")
 
-
-
-
-    st.configure(name+".TButton", background=colora, foreground=Collor.fg)
-    st.map(name+'.TButton',  foreground=[('disabled', Collor.bg_lighter),
-                    ('pressed', Collor.fg),
-                    ('active', Collor.fg)],
-        background=[('disabled', Collor.bg_selected),
-                    ('pressed', '!focus', 'cyan'),
-                    ('active', colorb)],
-        highlightcolor=[('focus', 'green'),
-                        ('!focus', 'red')],
-        relief=[('pressed', 'groove'),
-                ('!pressed', 'ridge')])
+    st.configure(name + ".TButton", background=colora, foreground=Collor.fg)
+    st.map(name + '.TButton', foreground=[('disabled', Collor.bg_lighter),
+                                          ('pressed', Collor.fg),
+                                          ('active', Collor.fg)],
+           background=[('disabled', Collor.bg_selected),
+                       ('pressed', '!focus', 'cyan'),
+                       ('active', colorb)],
+           highlightcolor=[('focus', 'green'),
+                           ('!focus', 'red')],
+           relief=[('pressed', 'groove'),
+                   ('!pressed', 'ridge')])
 
 
 def aplyttkStyler(master):
-    st=ttk.Style(master)
+    st = ttk.Style(master)
     st.theme_use("clam")
 
-
-
-
     st.configure("TButton", background=Collor.bg, foreground=Collor.fg)
-    st.map('TButton',  foreground=[('disabled', Collor.bg_lighter),
-                    ('pressed', Collor.fg),
-                    ('active', Collor.fg)],
-        background=[('disabled', Collor.bg_selected),
-                    ('pressed', '!focus', 'cyan'),
-                    ('active', Collor.bg_lighter)],
-        highlightcolor=[('focus', 'green'),
-                        ('!focus', 'red')],
-        relief=[('pressed', 'groove'),
-                ('!pressed', 'ridge')])
+    st.map('TButton', foreground=[('disabled', Collor.bg_lighter),
+                                  ('pressed', Collor.fg),
+                                  ('active', Collor.fg)],
+           background=[('disabled', Collor.bg_selected),
+                       ('pressed', '!focus', 'cyan'),
+                       ('active', Collor.bg_lighter)],
+           highlightcolor=[('focus', 'green'),
+                           ('!focus', 'red')],
+           relief=[('pressed', 'groove'),
+                   ('!pressed', 'ridge')])
     st.configure("v1.TEntry", tabmargins=0, background=Collor.bg, borderwidth=0, margin=20, padding=[5, 1],
-                    highlightbackground="blue",  # foreground="red",
+                 highlightbackground="blue",  # foreground="red",
                  fieldbackground=Collor.bg,
                  font=('Bahnschrift', 17),
                  foreground=Collor.fg,
-                lightcolor=Collor.selector_none, bordercolor=Collor.bg,
-                    darkcolor=Collor.selector_none)
+                 lightcolor=Collor.selector_none, bordercolor=Collor.bg,
+                 darkcolor=Collor.selector_none)
 
     st.map("v1.TEntry",
-              background=[("selected", Collor.selector_is), ("!selected", Collor.selector_none),
-                          ("active", Collor.selector_none),
-                          ("alternate", Collor.bg), ("!active", Collor.bg)],
+           background=[("selected", Collor.selector_is), ("!selected", Collor.selector_none),
+                       ("active", Collor.selector_none),
+                       ("alternate", Collor.bg), ("!active", Collor.bg)],
 
-              expand=[("selected", Collor.selector_none)], highlightcolor=[('focus', 'red'),
-                                                                ('!focus', 'blue')],)
+           expand=[("selected", Collor.selector_none)], highlightcolor=[('focus', 'red'),
+                                                                        ('!focus', 'blue')], )
     """bordercolor=[("selected", Collor.selector_none), ("!selected", "red")]
               , lightcolor=[("selected", Collor.selector_none), ("!selected", "red")]"""
 
@@ -216,22 +273,22 @@ def aplyttkStyler(master):
 
 
 class Notification(Frame):
-    def __init__(self,title="Notification",width=60,height=None,**kwargs):
-        Frame.__init__(self,bg=Collor.bg,width=width,height=height,**kwargs)
+    def __init__(self, title="Notification", width=60, height=None, **kwargs):
+        Frame.__init__(self, bg=Collor.bg, width=width, height=height, **kwargs)
         """Note: Master Must determines position"""
-        f=tkfont.Font(size=10,weight="bold")
-        self.width=width
-        self.height=height
-        f2 = tkfont.Font( font="Calibri",size=4)
-        fr=Frame(bg=Collor.bg,master=self)
-        fr.pack(side="top",anchor="ne")
-        self.w,self.h=width,height
-        self.notifications:[*Notification]=[]
+        f = tkfont.Font(size=10, weight="bold")
+        self.width = width
+        self.height = height
+        f2 = tkfont.Font(font="Calibri", size=4)
+        fr = Frame(bg=Collor.bg, master=self)
+        fr.pack(side="top", anchor="ne")
+        self.w, self.h = width, height
+        self.notifications: [*Notification] = []
         fr2 = Frame(bg=Collor.bg, master=fr)
         fr2.pack(side="left", anchor="ne")
 
-        L=Label(master=fr2,text=title,width=width-20,font=f2,bg=Collor.bg,fg=Collor.fg,anchor="w")
-        L.pack(side="top",anchor="ne",fill="x")
+        L = Label(master=fr2, text=title, width=width - 20, font=f2, bg=Collor.bg, fg=Collor.fg, anchor="w")
+        L.pack(side="top", anchor="ne", fill="x")
         sep = Separator(master=fr2, orient='horizontal')
 
         sep.pack(side="bottom", anchor="n", fill="x")
@@ -239,9 +296,11 @@ class Notification(Frame):
         L.pack(side="bottom", anchor="n", fill="both",expand=True)
 """
 
-        self.xbutton=BetterButton(master=fr,width=2,bg=Collor.bg,text="❌",fg=Collor.fg,font=f,anchor="e",command=self.hide)
+        self.xbutton = BetterButton(master=fr, width=2, bg=Collor.bg, text="❌", fg=Collor.fg, font=f, anchor="e",
+                                    command=self.hide)
 
-        self.xbutton.pack(side="right",anchor="e")
+        self.xbutton.pack(side="right", anchor="e")
+
     def hide(self):
         self.place_forget()
         print(self.master.updateable.keys())
@@ -255,61 +314,62 @@ class Notification(Frame):
             ofset = 0
             print(self.master.notifications)
 
+            self.place(x=self.winfo_screenwidth(), y=0)
+            self.master.notifications += [self]
 
-            self.place(x=self.winfo_screenwidth(),y=0)
-            self.master.notifications+=[self]
-
-
-            self.master.updateable[self]=self
+            self.master.updateable[self] = self
 
             self.updateWinXY()
 
-        except ImportError:#Exception:
+        except ImportError:  # Exception:
             raise Exception("Notification Object can only be used in containers using the pack window manager")
-    def updateWinXY(self,u=None):
+
+    def updateWinXY(self, u=None):
         def pl():
             x = self.master.winfo_width() - self.winfo_width()
-            ofset=0
+            ofset = 0
             for e in self.master.notifications:
-                if e==self:
+                if e == self:
                     break
-                if e.height==None:
-                    ofset +=e.winfo_height()+2
+                if e.height == None:
+                    ofset += e.winfo_height() + 2
                 else:
                     ofset += e.height + 2
-                #print(e.width)
-            if self.h==None:
-                self.h=self.winfo_height()
+                # print(e.width)
+            if self.h == None:
+                self.h = self.winfo_height()
             y = self.master.winfo_height() - self.h - 10 - ofset
-            self.place(x=x, y=y-20)
+            self.place(x=x, y=y - 20)
 
         self.after(100, pl)
 
-def createImage(path, x, y,nsa=False,name="",unknown="resources/unknown_plg.png",cornerRadius=None):
-    global StatikImage
 
+def createImage(path, x, y, nsa=False, name="", unknown="resources/unknown_plg.png", cornerRadius=None):
+    global StatikImage
 
     try:
         photo = Image.open(path)
         if cornerRadius:
-            photo=__add_corners(im=photo,rad=cornerRadius)
+            photo = __add_corners(im=photo, rad=cornerRadius)
         if not name:
-            i = ImageTk.PhotoImage(photo.resize((x, y)), name=path+f"{x}_{y}")
+            i = ImageTk.PhotoImage(photo.resize((x, y)), name=path + f"{x}_{y}")
         else:
-            i = ImageTk.PhotoImage(photo.resize((x, y)), name=name+f"{x}_{y}")
+            i = ImageTk.PhotoImage(photo.resize((x, y)), name=name + f"{x}_{y}")
         if not nsa:
             StatikImage += [i]
         return i
     except FileNotFoundError:
-        print("missing:",path)
+        print("missing:", path)
         photo = Image.open(unknown)
         if not name:
-            i = ImageTk.PhotoImage(photo.resize((x, y)), name=unknown+f"_{x}_{y}")
+            i = ImageTk.PhotoImage(photo.resize((x, y)), name=unknown + f"_{x}_{y}")
         else:
-            i = ImageTk.PhotoImage(photo.resize((x, y)), name=unknown+f"{x}_{y}")
+            i = ImageTk.PhotoImage(photo.resize((x, y)), name=unknown + f"{x}_{y}")
         if not nsa:
             StatikImage += [i]
         return i
+
+
 def __add_corners(im, rad):
     circle = Image.new('L', (rad * 2, rad * 2), 0)
     draw = ImageDraw.Draw(circle)
@@ -323,106 +383,113 @@ def __add_corners(im, rad):
     im.putalpha(alpha)
     return im
 
-def createPhoto(path, x, y,nsa=False):
+
+def createPhoto(path, x, y, nsa=False):
     global StatikImage
 
     photo = Image.open(path)
-    #print(photo)
-    StatikImage+=[photo]
-
+    # print(photo)
+    StatikImage += [photo]
 
     return photo
-def photo_to_image(photo,x,y):
+
+
+def photo_to_image(photo, x, y):
     global StatikImage
-    #print(photo)
-    i=ImageTk.PhotoImage(photo.resize((x, y)))
-    i=ImageTk.PhotoImage(photo.resize((x, y)))
+    # print(photo)
+    i = ImageTk.PhotoImage(photo.resize((x, y)))
+    i = ImageTk.PhotoImage(photo.resize((x, y)))
     StatikImage += [i]
     return i
-
 
 
 def getPath():
     f = str(__file__)
     fs = f[::-1].split("\\", 1)[1]
     return fs[::-1]
+
+
 absolutePath = getPath()
+
+
 class RoundetFrame(ttk.Frame):
-    def __init__(self,bg=Collor.bg,highlightbackground=None,highlightthickness=None,highlightcolor=None,bd=None,**kwargs):
-        r=hex(random.randint(1,999999))
+    def __init__(self, bg=Collor.bg, highlightbackground=None, highlightthickness=None, highlightcolor=None, bd=None,
+                 **kwargs):
+        r = hex(random.randint(1, 999999))
         super().__init__(**kwargs)
         style = ttk.Style()
 
-        roundet=createImage(getPath()+"/imgs/roundet_nofocus.png",132,132,name="graficstk_roundet_a")
-        roundet_focus = createImage(getPath() + "/imgs/roundet_focus.png",132,132,name="graficstk_roundet_b")
-        style.element_create("RoundedFrame"+str(r),
+        roundet = createImage(getPath() + "/imgs/roundet_nofocus.png", 132, 132, name="graficstk_roundet_a")
+        roundet_focus = createImage(getPath() + "/imgs/roundet_focus.png", 132, 132, name="graficstk_roundet_b")
+        style.element_create("RoundedFrame" + str(r),
                              "image", roundet,
                              ("focus", roundet_focus),
                              border=16, sticky="nsew")
-        style.configure("RoundedFrame"+str(r), background=Collor.transparency_color)
-        style.layout("RoundedFrame"+str(r),
-                     [("RoundedFrame"+str(r), {"sticky": "nsew"})])
+        style.configure("RoundedFrame" + str(r), background=Collor.transparency_color)
+        style.layout("RoundedFrame" + str(r),
+                     [("RoundedFrame" + str(r), {"sticky": "nsew"})])
 
-        self.configure(style="RoundedFrame"+str(r), padding=10)
+        self.configure(style="RoundedFrame" + str(r), padding=10)
+
 
 class ModernColorPicker(Frame):
-    def __init__(self,size=250,fg="black",**kw):
+    def __init__(self, size=250, fg="black", **kw):
         """use Callback <<ColorSelected>> and in the function : ObjectName.getColor()"""
         super().__init__(**kw)
 
-        self.size=s=size
+        self.size = s = size
         self.configure(width=s)
-        bg=kw.get("bg")
+        bg = kw.get("bg")
         if not bg:
-            bg="gray"
-        self.oFrame=Frame(self,bg=bg)
+            bg = "gray"
+        self.oFrame = Frame(self, bg=bg)
         self.oFrame.pack(side="bottom")
-        self.radius=self.size//2
-        self.c= Canvas(master=self,width=s,height=s,borderwidth=0,highlightthickness=0,background=bg)
+        self.radius = self.size // 2
+        self.c = Canvas(master=self, width=s, height=s, borderwidth=0, highlightthickness=0, background=bg)
         self.selpos = None
-        imagePath="resources/comp/color_weel.png"
+        imagePath = "resources/comp/color_weel.png"
         imagePath2 = "resources/comp/color_weel_suround.png"
-        self.colorindicator=Label(master=self.oFrame,bg=bg,text="⬤",font=tkinter.font.Font(size=24))
-        self.colorindicator.pack(side="left",anchor="ne")
+        self.colorindicator = Label(master=self.oFrame, bg=bg, text="⬤", font=tkinter.font.Font(size=24))
+        self.colorindicator.pack(side="left", anchor="ne")
 
-        self.selectetcollor=[]
+        self.selectetcollor = []
 
-        self.otherImages=[]
-        self.image = ImageTk.PhotoImage(Image.open(imagePath).resize((s,s)))
-        self.image2=ImageTk.PhotoImage(Image.open(imagePath2).resize((s,s)))
-        self.i2=self.c.create_image(0, 0, image=self.image2, anchor="nw")
+        self.otherImages = []
+        self.image = ImageTk.PhotoImage(Image.open(imagePath).resize((s, s)))
+        self.image2 = ImageTk.PhotoImage(Image.open(imagePath2).resize((s, s)))
+        self.i2 = self.c.create_image(0, 0, image=self.image2, anchor="nw")
 
-        self.c.create_image(0,0,image=self.image,anchor="nw")
-        self.opacityBLACK=self.create_rectangle(0,0,s,s,fill="#000000",alpha=0)
+        self.c.create_image(0, 0, image=self.image, anchor="nw")
+        self.opacityBLACK = self.create_rectangle(0, 0, s, s, fill="#000000", alpha=0)
 
-        self.c.bind("<Button-1>",self.setMarker)
+        self.c.bind("<Button-1>", self.setMarker)
         self.c.bind("<B1-Motion>", self.setMarker)
         self.c.pack()
-        self.color="#000000"
-        self.st=st = ttk.Style(self)
+        self.color = "#000000"
+        self.st = st = ttk.Style(self)
 
-        self.coll_set=ttk.Button(self.oFrame,text="SET",width=4,command=lambda :self.event_generate("<<ColorSelected>>"))
+        self.coll_set = ttk.Button(self.oFrame, text="SET", width=4,
+                                   command=lambda: self.event_generate("<<ColorSelected>>"))
         self.coll_set.pack(side="right")
-        st.configure("Horizontal.TScale",background=bg)
-        st.configure("TButton", background=bg,foreground=fg)
-        st.map('TButton', background=[('active',bg)])
+        st.configure("Horizontal.TScale", background=bg)
+        st.configure("TButton", background=bg, foreground=fg)
+        st.map('TButton', background=[('active', bg)])
 
-
-        self.sliderOpacity = ttk.Scale(self.oFrame, from_=-100, to=100,command=self.opacitisliderChange)
-        self.sliderOpacity.pack(side="left",anchor="center",fill="x")
+        self.sliderOpacity = ttk.Scale(self.oFrame, from_=-100, to=100, command=self.opacitisliderChange)
+        self.sliderOpacity.pack(side="left", anchor="center", fill="x")
 
     def getColor(self):
         return self.color
-    def opacitisliderChange(self,e):
 
-        v=(self.sliderOpacity.get()//1)/100
-        #print(v)
-        if v<0:
+    def opacitisliderChange(self, e):
+
+        v = (self.sliderOpacity.get() // 1) / 100
+        # print(v)
+        if v < 0:
             self.c.delete(self.opacityBLACK)
             self.otherImages.clear()
 
-
-            self.opacity = self.create_rectangle(0, 0, self.size, self.size, fill="#000000", alpha=v*-1)
+            self.opacity = self.create_rectangle(0, 0, self.size, self.size, fill="#000000", alpha=v * -1)
             self.c.lift(self.i2)
         else:
             self.c.delete(self.opacityBLACK)
@@ -432,9 +499,7 @@ class ModernColorPicker(Frame):
             self.c.lift(self.i2)
             pass
 
-
-
-    def create_rectangle(self,x1, y1, x2, y2, **kwargs):
+    def create_rectangle(self, x1, y1, x2, y2, **kwargs):
         if 'alpha' in kwargs:
             alpha = int(kwargs.pop('alpha') * 255)
             fill = kwargs.pop('fill')
@@ -443,40 +508,37 @@ class ModernColorPicker(Frame):
             self.otherImages.append(ImageTk.PhotoImage(image))
             self.c.create_image(x1, y1, image=self.otherImages[-1], anchor='nw')
         self.c.create_rectangle(x1, y1, x2, y2, **kwargs)
-    def rgb2hex(self,r, g, b):
+
+    def rgb2hex(self, r, g, b):
         return "#{:02x}{:02x}{:02x}".format(r, g, b)
 
-    def get_color(self, x,y):
+    def get_color(self, x, y):
         x, y = self.c.winfo_rootx() + x, self.c.winfo_rooty() + y
 
         i = ImageGrab.grab((x, y, x + 1, y + 1))
         return i.getpixel((0, 0))
-    def setMarker(self,e):
 
+    def setMarker(self, e):
 
-        x,y=e.x,e.y
-        if self.point_in_circle(x,y,self.radius,self.radius,self.radius):
-            if self.selpos!=None:
-                self.c.delete( self.selpos)
-            self.selpos=self.c.create_oval(x-5,y-5,x+5,y+5,width=2)
+        x, y = e.x, e.y
+        if self.point_in_circle(x, y, self.radius, self.radius, self.radius):
+            if self.selpos != None:
+                self.c.delete(self.selpos)
+            self.selpos = self.c.create_oval(x - 5, y - 5, x + 5, y + 5, width=2)
 
-            #self.selectetcollor=s=#self.imgNpArray[x][y]
-            rgb=self.get_color(x,y)
-            self.color=self.rgb2hex(*rgb)
+            # self.selectetcollor=s=#self.imgNpArray[x][y]
+            rgb = self.get_color(x, y)
+            self.color = self.rgb2hex(*rgb)
             self.colorindicator.configure(fg=self.color)
 
-
-
-
-
-    def point_in_circle(self,x, y, x_center, y_center, radius):
+    def point_in_circle(self, x, y, x_center, y_center, radius):
         return math.sqrt((x - x_center) ** 2 + (y - y_center) ** 2) <= radius
 
 
-
 class OptionButton(Frame):
-    def __init__(self, name,width=None, chosen: int = None,bg=Collor.bg, chosenStr=None, options=[], onSelect=None,displayName:bool=False, **kw):
-        super().__init__(bg=bg,**kw)
+    def __init__(self, name, width=None, chosen: int = None, bg=Collor.bg, chosenStr=None, options=[], onSelect=None,
+                 displayName: bool = False, **kw):
+        super().__init__(bg=bg, **kw)
         self.names = options
         self.optItems = []
         self.onSelect = onSelect
@@ -486,25 +548,23 @@ class OptionButton(Frame):
         if displayName:
             font2 = tkfont.Font(family="Bahnschrift", size=13, weight="bold")
 
-            b = Label(master=self, text=name + " ", bg=Collor.bg, fg=Collor.fg, font=font2,anchor="nw")
+            b = Label(master=self, text=name + " ", bg=Collor.bg, fg=Collor.fg, font=font2, anchor="nw")
             if width:
                 b.configure(width=width)
 
-            b.pack(side="top", anchor="nw",fill="x")
-            self.configure(highlightthickness=1,highlightbackground=Collor.highlight)
+            b.pack(side="top", anchor="nw", fill="x")
+            self.configure(highlightthickness=1, highlightbackground=Collor.highlight)
 
-
-        fr=Frame(master=self,bg=Collor.bg)
-        fr.pack(side="top",fill="both",padx=(10,10),pady=(3,2))
+        fr = Frame(master=self, bg=Collor.bg)
+        fr.pack(side="top", fill="both", padx=(10, 10), pady=(3, 2))
 
         for o in options:
-
             b = Label(master=fr, text=o, bg=Collor.selector_none, fg=Collor.fg,
-                       font=font_size_medium, bd=0,highlightbackground=Collor.fg)
+                      font=font_size_medium, bd=0, highlightbackground=Collor.fg)
 
             b.bind("<Button-1>", lambda u, num=n: self.setSelected(n=num))
 
-            b.pack(side="left", anchor="ne",padx=(2,2))
+            b.pack(side="left", anchor="ne", padx=(2, 2))
 
             self.optItems += [b]
 
@@ -522,9 +582,9 @@ class OptionButton(Frame):
         for nu, item in enumerate(self.optItems):
 
             if (nu == n):
-                item.configure(bg=Collor.selector_is, fg=Collor.fg,highlightthickness=1)
+                item.configure(bg=Collor.selector_is, fg=Collor.fg, highlightthickness=1)
                 continue
-            item.configure(bg=Collor.selector_none, fg=Collor.fg,highlightthickness=0
+            item.configure(bg=Collor.selector_none, fg=Collor.fg, highlightthickness=0
                            )
         return n
         pass
@@ -536,9 +596,9 @@ class OptionButton(Frame):
 
             if (s == str):
                 self.selected = n
-                b.configure(bg=Collor.selector_is, fg=Collor.fg,highlightthickness=1)
+                b.configure(bg=Collor.selector_is, fg=Collor.fg, highlightthickness=1)
                 continue
-            b.configure(bg=Collor.selector_none, fg=Collor.fg,highlightthickness=0)
+            b.configure(bg=Collor.selector_none, fg=Collor.fg, highlightthickness=0)
 
         pass
 
@@ -554,7 +614,8 @@ class OptionButton(Frame):
 
 
 class Animation():
-    def __init__(self,master,time=100,flow="fluid",type="move",repeat="infinite",colorflow_from_to=["#000000","#ffffff"]):
+    def __init__(self, master, time=100, flow="fluid", type="move", repeat="infinite",
+                 colorflow_from_to=["#000000", "#ffffff"]):
         """
         type: should be "move" or "color-flow" or
         flow: should be "fluid" or "stepped"
@@ -563,58 +624,51 @@ class Animation():
         colorflow_from_to: aray with the two colors if type is color-flow > format is "#color-in-hex"
 
         """
-        self.master=master
+        self.master = master
         self.time = time
-        if type=="color-flow":
-            self.color_flow_dict=self.rgbBlend(colorflow_from_to[0],colorflow_from_to[1])
-            self.colorflow_from_to=colorflow_from_to
+        if type == "color-flow":
+            self.color_flow_dict = self.rgbBlend(colorflow_from_to[0], colorflow_from_to[1])
+            self.colorflow_from_to = colorflow_from_to
 
         self.flow = flow
         self.type = type
-        self.repeat =repeat
+        self.repeat = repeat
 
-    def start(self,element):
+    def start(self, element):
         """
         element: the tkinter object that the animation should be run on
 
         """
 
-        if self.type=="color-flow":
-            def cl_flow_repeat_limited(e,repeat_circle,ftime,ret=[True]):
+        if self.type == "color-flow":
+            def cl_flow_repeat_limited(e, repeat_circle, ftime, ret=[True]):
 
-                frame_time=ftime
+                frame_time = ftime
 
                 if ret[0]:
-                    ret[0]=False
-                    ret =self.transform_color(len(self.color_flow_dict), -1, element, ftime=ftime, ret=ret)
+                    ret[0] = False
+                    ret = self.transform_color(len(self.color_flow_dict), -1, element, ftime=ftime, ret=ret)
 
                     repeat_circle -= 1
 
                 if (repeat_circle > 0):
-                    self.master.after(frame_time,lambda e=e,rp=repeat_circle:cl_flow_repeat_limited(e,rp,ftime,ret=ret))
+                    self.master.after(frame_time,
+                                      lambda e=e, rp=repeat_circle: cl_flow_repeat_limited(e, rp, ftime, ret=ret))
 
-            def cl_flow_repeat_infinite(e,ftime,ret=[True]):
-
+            def cl_flow_repeat_infinite(e, ftime, ret=[True]):
 
                 if ret[0]:
-                    ret =self.transform_color(len(self.color_flow_dict), -1, element, ftime=ftime)
+                    ret = self.transform_color(len(self.color_flow_dict), -1, element, ftime=ftime)
 
+                self.master.after(self.time, lambda e=e: cl_flow_repeat_infinite(e, ftime, ret=ret))
 
-                self.master.after(self.time, lambda e=e: cl_flow_repeat_infinite(e,ftime,ret=ret))
-
-
-            ftime=self.time//len(self.color_flow_dict)
+            ftime = self.time // len(self.color_flow_dict)
             if (self.repeat == "infinite"):
-                cl_flow_repeat_infinite(element,ftime)
+                cl_flow_repeat_infinite(element, ftime)
             else:
-                cl_flow_repeat_limited(element,self.repeat,ftime)
-        if self.type=="move":
+                cl_flow_repeat_limited(element, self.repeat, ftime)
+        if self.type == "move":
             pass
-
-
-
-
-
 
     def color_flow(self):
         pass
@@ -622,7 +676,6 @@ class Animation():
     def rgbBlend(self, h1, h2):
         r1, g1, b1 = ImageColor.getrgb(h1)
         r2, g2, b2 = ImageColor.getrgb(h2)
-
 
         l1 = [r1, g1, b1]
         l2 = [r2, g2, b2]
@@ -643,114 +696,106 @@ class Animation():
                 f"#{rgbh(l1[0] + addl[0] * i)}{rgbh(l1[1] + addl[1] * i)}{rgbh(l1[2] + addl[2] * i)}".replace("-",
                                                                                                               "")]
 
-
         return rl
+
     def transform_color(self, n, add=1, item=None, ftime=20, ret=[False]):
 
-        n+=add
+        n += add
         item.configure(bg=self.color_flow_dict[n])
-        if not(n<=0):
+        if not (n <= 0):
 
-            self.master.after(ftime, lambda:self.transform_color(n, add, item, ret=ret))
+            self.master.after(ftime, lambda: self.transform_color(n, add, item, ret=ret))
         else:
-            ret[0]=True
+            ret[0] = True
 
         return ret
 
 
-
-
-
 class ImageTransformButton(Frame):
-    def __init__(self, chosen: int = None, options:list[str,str]=["",""],colors=["#000000","#ffffff"],optionSize=(50,40) ,onSelect=None, **kw):
+    def __init__(self, chosen: int = None, options: list[str, str] = ["", ""], colors=["#000000", "#ffffff"],
+                 optionSize=(50, 40), onSelect=None, **kw):
         super().__init__(**kw)
         self.names = options
-        self.colors=colors
-        self.inTransform=False
+        self.colors = colors
+        self.inTransform = False
         self.onSelect = onSelect
         font_size_medium = tkfont.Font(family="Bahnschrift", size=12, weight="bold")
         n = 0
-        self.optionSize=optionSize
+        self.optionSize = optionSize
         self.selected = -1
-        self.images=[]
-        self.transforming=self.rgbBlend(colors[0],colors[1])
+        self.images = []
+        self.transforming = self.rgbBlend(colors[0], colors[1])
         # print(f"{n=}")
-        path=options[1]
-        i=createImage(path,optionSize[0],optionSize[1])
-
+        path = options[1]
+        i = createImage(path, optionSize[0], optionSize[1])
 
         b = Label(master=self, image=i, bg=Collor.bg,
-                      highlightbackground=Collor.bg_darker, font=font_size_medium, highlightthickness=2, bd=0)
+                  highlightbackground=Collor.bg_darker, font=font_size_medium, highlightthickness=2, bd=0)
 
         b.bind("<Button-1>", lambda u, num=n: self.setSelected(n=num))
 
         b.pack(side="left", anchor="ne")
 
-        self.optItem =b
+        self.optItem = b
 
         n += 1
         if chosen != None:
             self.setSelected(chosen)
 
-    def transform(self,n,add=1):
+    def transform(self, n, add=1):
 
-        n+=add
+        n += add
         self.optItem.configure(bg=self.transforming[n])
-        if (n!=19)&(not(n<=0)):
+        if (n != 19) & (not (n <= 0)):
 
-            self.after(20,lambda:self.transform(n,add))
+            self.after(20, lambda: self.transform(n, add))
         else:
             self.inTransform = False
-        if (n==10):
+        if (n == 10):
             self.optItem.configure(image=createImage(self.names[self.selected], self.optionSize[0], self.optionSize[1]))
 
     def setSelected(self, n):
-        if(self.inTransform):
+        if (self.inTransform):
             return
-        self.inTransform=True
+        self.inTransform = True
         if self.onSelect:
             self.onSelect(n)
-        if self.selected==0:
-            self.selected=1
+        if self.selected == 0:
+            self.selected = 1
         else:
 
-            self.selected=0
+            self.selected = 0
 
-        if self.selected==0:
+        if self.selected == 0:
             print(10101010)
             self.transform(0, 1)
             return
 
         self.transform(19, -1)
-    def rgbBlend(self,h1,h2):
-        r1,g1,b1=ImageColor.getrgb(h1)
-        r2,g2,b2=ImageColor.getrgb(h2)
 
+    def rgbBlend(self, h1, h2):
+        r1, g1, b1 = ImageColor.getrgb(h1)
+        r2, g2, b2 = ImageColor.getrgb(h2)
 
-        l1=[r1,g1,b1]
-        l2=[r2,g2,b2]
-        addl=[]
-        rl=[]
-        for i in range(0,len(l1)):
-            a,b=l1[i],l2[i]
-            addl+=[(a-b)/20]
+        l1 = [r1, g1, b1]
+        l2 = [r2, g2, b2]
+        addl = []
+        rl = []
+        for i in range(0, len(l1)):
+            a, b = l1[i], l2[i]
+            addl += [(a - b) / 20]
 
         def rgbh(r):
-            s ='%02x' % int(r)
-            if len(s)<3:
-                s="0"+s
+            s = '%02x' % int(r)
+            if len(s) < 3:
+                s = "0" + s
             return s
 
-
-        for i in range(0,20):
-
-
-            rl += [f"#{rgbh(l1[0] + addl[0] * i)}{rgbh(l1[1] + addl[1] * i)}{rgbh(l1[2]+addl[2]*i)}".replace("-","")]
-
+        for i in range(0, 20):
+            rl += [
+                f"#{rgbh(l1[0] + addl[0] * i)}{rgbh(l1[1] + addl[1] * i)}{rgbh(l1[2] + addl[2] * i)}".replace("-", "")]
 
         return rl
-
-
 
     def getSelectedId(self):
         return self.selected
@@ -764,17 +809,19 @@ class ImageTransformButton(Frame):
 
 
 class BetterButton(Button):
-    def __init__(self, bg=Collor.bg, fg=Collor.fg,font=None, **kn):
-        if font==None:
-            font=tkfont.Font(family="Bahnschrift", size=12, weight="bold")
+    def __init__(self, bg=Collor.bg, fg=Collor.fg, font=None, **kn):
+        if font == None:
+            font = tkfont.Font(family="Bahnschrift", size=12, weight="bold")
         super().__init__(bg=bg, fg=fg, highlightthickness=1, bd=0, font=font,
                          **kn)
 
+
 class PopUpMenuScreen(Frame):
-    def __init__(self,titel,width=100,height=10,**kwargs):
-        Frame.__init__(self,width=width,height=height,bg=Collor.bg,**kwargs)
+    def __init__(self, titel, width=100, height=10, **kwargs):
+        Frame.__init__(self, width=width, height=height, bg=Collor.bg, **kwargs)
         fontTitel = tkfont.Font(family="Bahnschrift", size=14, weight="bold")
-        Label(self,bg=Collor.bg,fg=Collor.fg,font=fontTitel,text=titel,width=24,highlightthickness=0).pack(side="top",fill="x")
+        Label(self, bg=Collor.bg, fg=Collor.fg, font=fontTitel, text=titel, width=24, highlightthickness=0).pack(
+            side="top", fill="x")
 
 
 class MovableFrame(Frame):
@@ -794,7 +841,6 @@ class MovableFrame(Frame):
 
 class LabelButton(Label):
     def __init__(self, img, command=None, args=(), **kw):
-
         font_size_medium = tkfont.Font(family="Bahnschrift", size=12, weight="bold")
         super().__init__(image=img, bg=Collor.bg_darker, highlightthickness=1,
                          highlightbackground=Collor.fg_inverted, font=font_size_medium, **kw)
@@ -804,19 +850,22 @@ class LabelButton(Label):
         self.args = args
 
         self.bind("<Button-1>", self.klickListener)
+
         def f(u):
             self.configure(bg=Collor.bg, highlightbackground=Collor.fg_inverted)
             if self.commandf:
                 self.commandf(*self.args)
 
         self.bind("<ButtonRelease-1>", f)
-    def command(self,command):
-        self.commandf=command
+
+    def command(self, command):
+        self.commandf = command
 
     def klickListener(self, u):
         global tagsActive
 
         self.configure(bg=Collor.bg_selected, highlightbackground=Collor.fg)
+
 
 class StickyButton(Label):
     def __init__(self, img, command=None, args=(), **kw):
@@ -831,74 +880,66 @@ class StickyButton(Label):
         self.state = False
         self.bind("<ButtonRelease-1>", self.klickListener)
 
+    def command(self, command):
+        self.commandf = command
 
+    def forceState(self, state: bool):
+        self.klickListener("", forceState=True, state=state, nocom=True)
 
-    def command(self,command):
-        self.commandf=command
-    def forceState(self,state:bool):
-        self.klickListener("",forceState=True,state=state,nocom=True)
-    def klickListener(self, u,forceState=None,nocom=False,state=None):
+    def klickListener(self, u, forceState=None, nocom=False, state=None):
 
         global tagsActive
         if not forceState:
-            self.state=not self.state
+            self.state = not self.state
         else:
-            self.state=state
+            self.state = state
         if self.state:
             if self.commandf:
                 if not nocom:
-
-                    self.commandf("active",*self.args)
+                    self.commandf("active", *self.args)
             self.configure(bg=Collor.bg_selected, highlightbackground=Collor.fg)
 
         else:
-            if self.commandf==None:
+            if self.commandf == None:
                 if not nocom:
-
-                    self.commandf("inactive",*self.args)
+                    self.commandf("inactive", *self.args)
 
             self.configure(bg=Collor.bg, highlightbackground=Collor.fg_inverted)
 
 
-
 class ScroledTextBox(Text):
-    def __init__(self, NumRange=(0, 10),lapOver=True, **kw):
+    def __init__(self, NumRange=(0, 10), lapOver=True, **kw):
         font_size_medium = tkfont.Font(family="Bahnschrift", size=12, weight="bold")
         super().__init__(bg=Collor.bg_darker, height=1, fg=Collor.fg, font=font_size_medium,
                          highlightthickness=0, highlightbackground="black", highlightcolor="black", **kw)
         self.bind("<Return>", self.e)
         self.bind("<Key>", self.br)
         self.bind("<MouseWheel>", self.scroll)
-        #self.event_add("<<ValueChange>>",None)
+        # self.event_add("<<ValueChange>>",None)
         self.list = [i for i in range(NumRange[0], NumRange[1] + 1)]
         self.ind = 0
-        self.lapOver=lapOver
+        self.lapOver = lapOver
         self.setValue(self.list[0])
-        self.curs=Frame()
+        self.curs = Frame()
 
     def scroll(self, e):
 
-
-
-
         if e.delta > 1:
 
-            if  (not self.lapOver)&(self.ind>=len(self.list)-1):
-
+            if (not self.lapOver) & (self.ind >= len(self.list) - 1):
                 return
             self.ind += 1
             if (self.ind > len(self.list) - 1):
                 self.ind = 0
         else:
 
-            if  (not self.lapOver)&(self.ind<=0):
+            if (not self.lapOver) & (self.ind <= 0):
                 return
             self.ind -= 1
             if (self.ind <= -1):
                 self.ind = len(self.list) - 1
 
         self.setValue(self.list[self.ind])
-
 
     def e(self, u):
         return "break"
@@ -921,10 +962,11 @@ class ScroledTextBox(Text):
 
 
 class TextBox(Text):
-    def __init__(self, max_lines=1, width2=0, start=None, disable_height_change=True,font=None,bg=Collor.bg_darker, **kw):
-        if font==None:
-            font=tkfont.Font(family="Bahnschrift", size=12, weight="bold")
-        super().__init__(bg=bg, fg=Collor.fg,insertbackground=Collor.fg, font=font, **kw)
+    def __init__(self, max_lines=1, width2=0, start=None, disable_height_change=True, font=None, bg=Collor.bg_darker,
+                 **kw):
+        if font == None:
+            font = tkfont.Font(family="Bahnschrift", size=12, weight="bold")
+        super().__init__(bg=bg, fg=Collor.fg, insertbackground=Collor.fg, font=font, **kw)
         self.bind("<Return>", self.e)
         self.widthNum = width2
         self.max_lines = max_lines
@@ -940,7 +982,6 @@ class TextBox(Text):
 
     def e(self, u):
         return "break"
-
 
     def setValue(self, text):
         print(self['state'], "ferw")
@@ -988,11 +1029,11 @@ class TextBox(Text):
 
 
 class ModernNotebook(ttk.Notebook):
-    def __init__(self,disableTabSelection=False,**kwwargs):
+    def __init__(self, disableTabSelection=False, **kwwargs):
 
         super(ModernNotebook, self).__init__(**kwwargs)
 
-        self.disableTabSelection =disableTabSelection
+        self.disableTabSelection = disableTabSelection
         self.list = []
         self.pointer = 0
 
@@ -1029,26 +1070,25 @@ class ModernNotebook(ttk.Notebook):
                   , lightcolor=[("selected", Collor.selector_none), ("!selected", Collor.bg)])
 
     def __update_disabledState(self):
-        for n,tab in enumerate(self.list):
+        for n, tab in enumerate(self.list):
             if self.disableTabSelection:
-                self.tab(n,state="disabled")
+                self.tab(n, state="disabled")
             else:
-                self.tab(n,state="normal")   #states= normal, disabled, or hidden
+                self.tab(n, state="normal")  # states= normal, disabled, or hidden
 
-    def addframe(self,frame)->int:
+    def addframe(self, frame) -> int:
 
         self.list.append(frame)
         self.add(frame)
-        index=len(self.list)-1
-
+        index = len(self.list) - 1
 
         return index
-    def nav(self,index):
+
+    def nav(self, index):
         self.pointer = index
         self.__update_disabledState()
-        self.tab(self.pointer,state="normal")
+        self.tab(self.pointer, state="normal")
         self.select(self.list[index])
-
 
     def forward(self):
         self.__update_disabledState()
@@ -1065,80 +1105,79 @@ class ModernNotebook(ttk.Notebook):
             self.tab(self.pointer, state="normal")
             self.select(self.list[self.pointer])
 
+
 class ScrollableFrame(Frame):
-    def __init__(self,width=100,height=100,bg=Collor.bg,**kw):
+    def __init__(self, width=100, height=100, bg=Collor.bg, **kw):
 
-
-        super().__init__(bg=bg,width=width,height=height,**kw)
+        super().__init__(bg=bg, width=width, height=height, **kw)
 
         f = Frame(master=self, bg=bg)
-        self.innerFrame=f
-        self.width=width
-        self.height=height
-        f.place(x=0, y=0,width=width,height=height)
+        self.innerFrame = f
+        self.width = width
+        self.height = height
+        f.place(x=0, y=0, width=width, height=height)
         self.re_bind()
-        #f.bind("<MouseWheel>", lambda e: self.onScroll(e, f))
+        # f.bind("<MouseWheel>", lambda e: self.onScroll(e, f))
         f.bind()
-        ef=Frame(master=self,width=width*10,height=4,bg=Collor.selector_none)
-        ef.place(x=0,y=height-4)
-        ef.bind("<Configure>",self.updateHeight)
+        ef = Frame(master=self, width=width * 10, height=4, bg=Collor.selector_none)
+        ef.place(x=0, y=height - 4)
+        ef.bind("<Configure>", self.updateHeight)
 
-        self.curs=Frame(master=self,bg=Collor.highlight,height=10,width=6,highlightthickness=0)
+        self.curs = Frame(master=self, bg=Collor.highlight, height=10, width=6, highlightthickness=0)
         Label(master=self.curs)
-        self.curs.place(y=0,x=-6,height=10,)
+        self.curs.place(y=0, x=-6, height=10, )
 
-    def updateHeight(self,u=None):
-        #print("h",self.innerFrame.winfo_height(),self.innerFrame.place_info())
+    def updateHeight(self, u=None):
+        # print("h",self.innerFrame.winfo_height(),self.innerFrame.place_info())
         self.innerFrame.place_configure(height=self.innerFrame.winfo_reqheight())
 
     def forget_bind(self):
         self.unbind_all("<MouseWheel>")
-    def re_bind(self):
-        self.innerFrame.bind_class('.', "<MouseWheel>",lambda e: self.onScroll(e))
-        self.innerFrame.configure(highlightbackground=Collor.selector_none,highlightcolor=Collor.selector_none)
 
-    def updateWidth(self,u):
+    def re_bind(self):
+        self.innerFrame.bind_class('.', "<MouseWheel>", lambda e: self.onScroll(e))
+        self.innerFrame.configure(highlightbackground=Collor.selector_none, highlightcolor=Collor.selector_none)
+
+    def updateWidth(self, u):
         self.configure(width=self.innerFrame.winfo_width())
         self.innerFrame.bind_class('.', "<MouseWheel>", lambda e: self.onScroll(e))
 
-
-    def onScroll(self,e,delta=0):
+    def onScroll(self, e, delta=0):
         self.updateHeight(1)
 
-        f=self.innerFrame
+        f = self.innerFrame
         y = int(f.place_info()["y"])
         w = int(f.winfo_reqheight()) - self.winfo_height()
         # print(self)
         if not delta:
-            delta=e.delta
+            delta = e.delta
 
         if delta > 0:
             y += 20
         else:
             y -= 20
-        #print(y+self.winfo_height(),self.innerFrame.winfo_reqheight())
+        # print(y+self.winfo_height(),self.innerFrame.winfo_reqheight())
         if ((-y) > w):
-            #print("None")
+            # print("None")
             return
         elif ((y) > 0):
-            #print("None")
+            # print("None")
             return
 
         f.place_configure(y=y)
-        if y==0:
-            y=1
-        hight_frame=self.winfo_height()
-        rest=hight_frame/self.innerFrame.winfo_height()
-        #print(hight_frame, self.innerFrame.winfo_height(), (y),rest,self.width,hight_frame/rest)
+        if y == 0:
+            y = 1
+        hight_frame = self.winfo_height()
+        rest = hight_frame / self.innerFrame.winfo_height()
+        # print(hight_frame, self.innerFrame.winfo_height(), (y),rest,self.width,hight_frame/rest)
 
-        new_height = hight_frame*rest
+        new_height = hight_frame * rest
 
-        #print(new_height, self.height)
-        self.curs.configure(height =new_height,)
+        # print(new_height, self.height)
+        self.curs.configure(height=new_height, )
 
-        self.curs.place_configure(y=((hight_frame*rest)-new_height)-y,height=new_height,x=self.winfo_width()-6)
-
-
+        self.curs.place_configure(y=((hight_frame * rest) - new_height) - y, height=new_height,
+                                  x=self.winfo_width() - 6)
 
     def getInnerFrame(self):
         return self.innerFrame

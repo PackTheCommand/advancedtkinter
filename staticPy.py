@@ -1,10 +1,6 @@
 import json
 
-import translation
 
-language= translation.Translation(lang="en-default")
-print("lang",language.get("projects.butons.aply"))
-Year,Month,Day=2000,1,1
 class Settings:
     def __init__(self, path):
         self.path = path
