@@ -1,0 +1,16 @@
+
+<label style="font=f.Font(size='20')">Hallo Ich bin tomm</label>
+<frame style="bg='black',width=200,height=100" id="myframe">
+    <label style="font=f.Font(size='20'),bg='#00ff00'">vfdsgvfds</label>
+
+</frame>
+<frame style="bg='black',width=200,height=400">
+    <frame style="bg='black',width=200,height=20"></frame>
+</frame>
+<Text style="font=f.Font(size='20'),width=20,height=10" (Button-1)="page.run($event)" if="page.test">fedwdfdsfds</Text>
+
+
+
+
+
+
