@@ -10,8 +10,9 @@ c.pack()
 def examplemarkerfunction(y,m):
     return {20:"#ff00ff",12:"#00ffff"}
 
-def onclick(day):
-    print("youclicked ",day)
+def onclick(date):
+
+    print("youclicked ",date)
 
 c.StandartCalder([2023,2],getMarkersFunction=examplemarkerfunction,onDayClicked=onclick)
 tk.mainloop()

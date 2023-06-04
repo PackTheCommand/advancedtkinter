@@ -134,6 +134,9 @@ class Calendar(Canvas):
     def StandartCalder(self,date:[int,int],getMarkersFunction:{}=None,onDayClicked=None,badgeColor="#83C9F4",tbbg="#83C9F4"):
         year=date[0]
         month=date[1]
+        def ondKlick(d):
+            if onDayClicked:
+                onDayClicked((d,month,year))
         self.update()
         def getmarks()->dict:
             if getMarkersFunction:
@@ -142,7 +145,7 @@ class Calendar(Canvas):
         tb=self._topBar(self.winfo_width(), "March", font=font.Font(size=10, font="Calibre", weight="bold"),bg=tbbg)
         monthNames=["","January","February","March","April","May","June","July","August","September","Oktober","November","December"]
         rc = cale.monthcalendar(year,month)
-        comps=self.genCal(rc,marks=getmarks(),onclicl=onDayClicked,defuldCollor=badgeColor)
+        comps=self.genCal(rc,marks=getmarks(),onclicl=ondKlick,defuldCollor=badgeColor)
 
         self.itemconfig(tb[0],text=monthNames[month]+f" {year}")
 
@@ -158,7 +161,7 @@ class Calendar(Canvas):
             rc = cale.monthcalendar(year, month)
             self.delItems(comps)
             self.itemconfig(tb[0],text=monthNames[month]+f" {year}")
-            comps = self.genCal(rc,marks=getmarks(),onclicl=onDayClicked,defuldCollor=badgeColor)
+            comps = self.genCal(rc,marks=getmarks(),onclicl=ondKlick,defuldCollor=badgeColor)
 
         def last(u):
             nonlocal month, rc, comps, year
@@ -172,7 +175,7 @@ class Calendar(Canvas):
             rc = cale.monthcalendar(year, month)
             self.delItems(comps)
             self.itemconfig(tb[0], text=monthNames[month] + f" {year}")
-            comps = self.genCal(rc,marks=getmarks(),onclicl=onDayClicked,defuldCollor=badgeColor)
+            comps = self.genCal(rc,marks=getmarks(),onclicl=ondKlick,defuldCollor=badgeColor)
 
 
 
