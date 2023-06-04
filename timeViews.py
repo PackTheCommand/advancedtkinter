@@ -11,6 +11,7 @@ class Calendar(Canvas):
         self.colums=7
         self.fontfg=fontfg
         self.font=tfont
+        self.month,self.year=0,0
         self.badgeZ=40
 
         self.textMargin=8
@@ -132,49 +133,51 @@ class Calendar(Canvas):
         return l
 
     def StandartCalder(self,date:[int,int],getMarkersFunction:{}=None,onDayClicked=None,badgeColor="#83C9F4",tbbg="#83C9F4"):
-        year=date[0]
-        month=date[1]
+        self.year=date[0]
+        self.month=date[1]
         def ondKlick(d):
             if onDayClicked:
-                onDayClicked((d,month,year))
+                onDayClicked((d,self.month,self.year))
         self.update()
         def getmarks()->dict:
+
             if getMarkersFunction:
-                return getMarkersFunction(year, month)
+                print("Marking")
+                return getMarkersFunction(self.year, self.month)
             return {}
         tb=self._topBar(self.winfo_width(), "March", font=font.Font(size=10, font="Calibre", weight="bold"),bg=tbbg)
         monthNames=["","January","February","March","April","May","June","July","August","September","Oktober","November","December"]
-        rc = cale.monthcalendar(year,month)
+        rc = cale.monthcalendar(self.year,self.month)
         comps=self.genCal(rc,marks=getmarks(),onclicl=ondKlick,defuldCollor=badgeColor)
 
-        self.itemconfig(tb[0],text=monthNames[month]+f" {year}")
+        self.itemconfig(tb[0],text=monthNames[self.month]+f" {self.year}")
 
 
         def next(u):
-            nonlocal month,rc,comps,year
-            if 0<month<12:
-                month+=1
+            nonlocal rc,comps
+            if 0<self.month<12:
+                self.month+=1
 
-            elif month==12:
-                month=1
-                year+=1
-            rc = cale.monthcalendar(year, month)
+            elif self.month==12:
+                self.month=1
+                self.year+=1
+            rc = cale.monthcalendar(self.year, self.month)
             self.delItems(comps)
-            self.itemconfig(tb[0],text=monthNames[month]+f" {year}")
+            self.itemconfig(tb[0],text=monthNames[self.month]+f" {self.year}")
             comps = self.genCal(rc,marks=getmarks(),onclicl=ondKlick,defuldCollor=badgeColor)
 
         def last(u):
-            nonlocal month, rc, comps, year
+            nonlocal  rc, comps
 
-            if month == 1:
-                month = 12
-                year -= 1
+            if self.month == 1:
+                self.month = 12
+                self.year -= 1
             else:
-                month -= 1
+                self.month -= 1
 
-            rc = cale.monthcalendar(year, month)
+            rc = cale.monthcalendar(self.year, self.month)
             self.delItems(comps)
-            self.itemconfig(tb[0], text=monthNames[month] + f" {year}")
+            self.itemconfig(tb[0], text=monthNames[self.month] + f" {self.year}")
             comps = self.genCal(rc,marks=getmarks(),onclicl=ondKlick,defuldCollor=badgeColor)
 
 
