@@ -10,10 +10,10 @@ class Settings:
                 self.settings = json.load(f)[0]
         except FileNotFoundError:
             print("No setting.json found using default settings")
-            self.settings = {"mode": "dark",}
+            self.settings = {"mode": "dark","UI-vers":"0.6"}
             self.save()
 
-        self.defuldOptions={"mode": "dark","noInfoText":False,"devMode":False,"$638382%Cheats":False}
+        self.defuldOptions={"mode": "dark","UI-vers":"0.6"}
 
 
 
