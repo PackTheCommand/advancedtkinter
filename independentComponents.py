@@ -412,24 +412,6 @@ def getPath():
 absolutePath = getPath()
 
 
-class RoundetFrame(ttk.Frame):
-    def __init__(self, bg=Collor.bg, highlightbackground=None, highlightthickness=None, highlightcolor=None, bd=None,
-                 **kwargs):
-        r = hex(random.randint(1, 999999))
-        super().__init__(**kwargs)
-        style = ttk.Style()
-
-        roundet = createImage(getPath() + "/imgs/roundet_nofocus.png", 132, 132, name="graficstk_roundet_a")
-        roundet_focus = createImage(getPath() + "/imgs/roundet_focus.png", 132, 132, name="graficstk_roundet_b")
-        style.element_create("RoundedFrame" + str(r),
-                             "image", roundet,
-                             ("focus", roundet_focus),
-                             border=16, sticky="nsew")
-        style.configure("RoundedFrame" + str(r), background=Collor.transparency_color)
-        style.layout("RoundedFrame" + str(r),
-                     [("RoundedFrame" + str(r), {"sticky": "nsew"})])
-
-        self.configure(style="RoundedFrame" + str(r), padding=10)
 
 
 class ModernColorPicker(Frame):
