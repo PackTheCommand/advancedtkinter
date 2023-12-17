@@ -197,8 +197,8 @@ class floatingBadge2(Frame):
             self.updateWinXY()
 
 
-        except ImportError:  # Exception:
-            raise Exception("Notification Object can only be used in containers using the place window manager")
+        except Exception:
+            raise Exception("floatingBadge2 Object can only be used in containers using the place window manager")
 
     def updateWinXY(self, u=None):
         if not self.visible:
